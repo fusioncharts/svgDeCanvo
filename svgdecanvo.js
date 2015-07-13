@@ -28,6 +28,30 @@ var SvgDeCanvo;
 			svg = this.StrToDom(svgElem);
 		}
 		
+		this.prepareDomTree(nodeArr, svg);
+		
+	}
+	
+	/*
+	* Method that create the dom tree in order (Recursive)
+	* @param {array} arr - Array where the dom tree will be stored
+	* @param {SVG} svgElem - the svg element whose dom tree will be created
+	 */
+	SvgDeCanvo.prototype.prepareDomTree = function (arr, svgElm) {
+		var chldrn = svgElm.children,
+			numChldrn = chldrn.length,
+			chArr = [],
+			i;
+		
+		if(numChldrn == 0) {
+			arr.push(svgElm);
+			return;
+		}
+			
+		for ( i = 0; i < numChldrn; i++ ) {
+			arr[chldrn[i].tagName +"|"+i] = [];
+			this.prepareDomTree(arr[chldrn[i].tagName +"|"+i], chldrn[i]);
+		}
 	}
 	
 	
@@ -54,6 +78,5 @@ var SvgDeCanvo;
 		  
 		  return doc;
 	}
-
 
 } () );
