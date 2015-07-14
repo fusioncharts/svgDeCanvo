@@ -81,6 +81,9 @@ var SvgDeCanvo;
 		var chldrn = svgElm.childNodes,
 			numChldrn = chldrn ? chldrn.length : 0,
 			chArr = [],
+			styleArr = [],
+			styleName,
+			styleValue,
 			i;
 
 		// Copy the parent attributes
@@ -94,6 +97,19 @@ var SvgDeCanvo;
 				svgElm.setAttribute([attrib[i].name], attrib[i].value);
 			}
 		}
+
+		// Include style attribute that are not present in the attribute list
+		if ( svgElm.attributes && svgElm.attributes['style'] ) {
+			styleArr = svgElm.attributes['style'].value.replace(/;$/, '').split(';');
+			for ( i in styleArr ) {
+				styleName = styleArr[i].split(':')[0].trim();
+				if ( !svgElm.attributes[styleName] ) {
+					svgElm.setAttribute(styleName, styleArr[i].split(':')[1].trim());
+				}
+			}
+
+		}
+
 		// If this element is the last element in the hirarchy then push it to the array
 		if(numChldrn == 0 || (numChldrn == 1 && !chldrn[0].tagName)) {
 			arr.push(svgElm);
@@ -154,11 +170,8 @@ var SvgDeCanvo;
 	***************************************************************************/
 
 	SvgDeCanvo.prototype.drawtext = function( elem ) {
-		// innerHTML for chrome and firefox textContent for safari and IE
-		var text = elem.innerHTML || elem.textContent, 
-			x = elem.attributes.x.value,
-			y = elem.attributes.y.value;
-		context.fillText(text, x, y);
+		// Internally calling the drawspan function
+		this.drawtspan( elem );
 	}
 
 	SvgDeCanvo.prototype.drawtspan = function( elem ) {
