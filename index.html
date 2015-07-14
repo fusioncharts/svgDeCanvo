@@ -1,0 +1,53 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>svgdecanvo test</title>
+    <script type="text/javascript" src="svgdecanvo.js"></script>
+    <script type="text/javascript">
+
+        function render() {
+            var svg = document.getElementById('svgInput').value,
+                canvas = document.getElementById('canvas');
+            document.getElementById('svg').innerHTML = svg;
+            new SvgDeCanvo(svg, canvas, function (canvas) {
+
+            });
+        }
+    </script>
+
+    <style type="text/css">
+        .output {
+            border: 1px solid gray;
+            width: 500px;
+            height: 500px;
+            overflow: scroll;
+        }
+
+        .outputHalf {
+            width: 45%;
+            float: left;
+        }
+    </style>
+
+</head>
+<body>
+    <h2>Svg element</h2>
+    <textarea id="svgInput" rows="10" cols="150"></textarea><br/>
+    <input type="button" value="Render" onclick="render();"/>
+
+    <div class="outputHalf">
+        <h2>svg output</h2>
+        <div class="output" id="svg"></div>
+    </div>
+
+    <div class="outputHalf">
+        <h2>canvas output</h2>
+        <div class="output">
+            <canvas id="canvas" width="500px" height="350px"></canvas>
+        </div>
+    <div>
+
+    
+
+</body>
+</html>
