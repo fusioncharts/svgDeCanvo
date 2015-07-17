@@ -92,6 +92,11 @@ var SvgDeCanvo;
 			if ( attrib[i].name == 'class' || attrib[i].name == 'id' ) {
 				continue;
 			}
+			if ( attrib[i].name == 'transform' && svgElm.attributes['transform']) {
+				svgElm.setAttribute(attrib[i].name, attrib[i].value + ' ' +
+					svgElm.attributes['transform'].value);
+				continue
+			}
 			// If attribute not exist copy parent attribute
 			if ( typeof attrib[i] == 'object' && !svgElm.attributes[attrib[i].name]) {
 				svgElm.setAttribute([attrib[i].name], attrib[i].value);
@@ -223,18 +228,255 @@ var SvgDeCanvo;
 		
 	}
 
+	SvgDeCanvo.prototype.drawpath = function( elem ) {
+		var subPath = elem.attributes['d'].value.match( /[a-z][^a-z"]*/ig ),
+			a,
+			cmdName,
+			cmdDetails,
+			cx = 0,
+			cy = 0,
+			i;
+		if ( elem.attributes['transform'] ) {
+			this.startTransform( context, elem.attributes['transform'].value );
+		}
+		context.beginPath();
+
+		for (a in subPath ) {
+			cmdName = subPath[a].substring(0,1);
+			cmdDetails = this.getArgsAsArray(subPath[a].substring(1, (subPath[a].length)));
+			switch ( cmdName ) {
+				case 'M':
+					cx = Number(cmdDetails[0]);
+					cy = Number(cmdDetails[1]);
+					context.moveTo(cx, cy);
+					break;
+				case 'm':
+					cx += Number(cmdDetails[0]);
+					cy += Number(cmdDetails[1]);
+					context.moveTo(cx, cy);
+					break;
+				case 'L':
+					for ( i = 0; cmdDetails[i]; i += 2 ) {
+						cx = Number(cmdDetails[i]);
+						cy = Number(cmdDetails[i+1]);
+						context.lineTo(cx, cy);
+					}
+					break;
+				case 'l':
+					for ( i = 0; cmdDetails[i]; i += 2 ) {
+						cx += Number(cmdDetails[i]);
+						cy += Number(cmdDetails[i+1]);
+						context.lineTo(cx, cy);
+					}
+					break;
+				case 'V':
+					for ( i = 0; cmdDetails[i]; i += 2 ) {
+						cy = Number(cmdDetails[i+1]);
+						context.moveTo(cx, Number(cmdDetails[i]));
+						context.lineTo(cx, cy);
+					}
+					break;
+				case 'v':
+					for ( i = 0; cmdDetails[i]; i += 1 ) {
+						cy += Number(cmdDetails[i]);
+						context.lineTo(cx, cy);
+					}
+					break;
+				case 'Q':
+					for ( i = 0; cmdDetails[i]; i += 4 ) {
+						context.quadraticCurveTo(Number(cmdDetails[i]),
+							Number(cmdDetails[i+1]), cx = Number(cmdDetails[i+2]),
+							cy = Number(cmdDetails[i+3]));
+					}
+					break;
+				case 'q':
+					for ( i = 0; cmdDetails[i]; i += 4 ) {
+						cx += Number(cmdDetails[i+2]);
+						cy += Number(cmdDetails[i+3]);
+						context.quadraticCurveTo(cmdDetails[i], cmdDetails[i+1],
+							cx, cy);
+					}
+				case 'C':
+					for ( i = 0; cmdDetails[i]; i += 6 ) {
+						cx = Number(cmdDetails[i+4]);
+						cy = Number(cmdDetails[i+5]);
+						context.bezierCurveTo(cmdDetails[i], cmdDetails[i+1],
+							cmdDetails[i+2], cmdDetails[i+3], cx, cy);
+					}
+					break;
+				case 'c':
+					for ( i = 0; cmdDetails[i]; i += 6 ) {
+
+						context.bezierCurveTo(cx + Number(cmdDetails[i]),
+							cy + Number(cmdDetails[i+1]), cx + Number(cmdDetails[i+2]),
+							cy + Number(cmdDetails[i+3]), cx += Number(cmdDetails[i+4]),
+							cy += Number(cmdDetails[i+5]));
+					}
+					
+					break;
+				case 'a':
+				case 'A':
+					for ( i = 0; cmdDetails[i]; i += 7 ) {
+						var rx = Number(cmdDetails[i]),
+							ry = Number(cmdDetails[i+1]),
+							xAngle, 
+							aFlag,
+							sFlag,
+							ex,
+							ey,
+							x1,
+							y1,
+							signValue,
+							s2sqrt,
+							centx1,
+							centy1,
+							centx,
+							centy,
+							startAngle,
+							dAngle,
+							rErrFlag,
+							radius,
+							xShift,
+							yShift;
+
+						// moding the radius value
+						rx = rx < 0 ? -rx : rx;
+						ry = ry < 0 ? -ry : ry;
+						if( rErrFlag > 1 ) {
+							rx *= rErrFlag;
+							ry *= rErrFlag;
+						};
+						radius = rx > ry ? rx : ry;
+						xShift = rx > ry ? 1 : rx / ry;
+						yShift = rx > ry ? ry / rx : 1;
+
+						// Converting to radian
+						xAngle = Number(cmdDetails[i+2]) * (Math.PI / 180);
+						aFlag = Number(cmdDetails[i+3]);
+						sFlag = Number(cmdDetails[i+4]);
+						ex = Number(cmdDetails[i+5]);
+						ey = Number(cmdDetails[i+6]);
+						// http://www.w3.org/TR/SVG/implnote.html#ArcConversionEndpointToCenter
+						// Calculation are based on the above link
+						// Step 1
+						x1 = Math.cos(xAngle) * (cx - ex) / 2 + 
+								Math.sin(xAngle) * (cy - ey) / 2;
+						y1 = -Math.sin(xAngle) * (cx - ex) / 2 + 
+								Math.cos(xAngle) * (cy - ey) / 2;
+						// Step 2
+						signValue = aFlag == sFlag ? -1 : 1;
+						// Take the square root part as an variable
+						s2sqrt = signValue * Math.sqrt( ( ( Math.pow( rx, 2 ) * Math.pow( ry, 2) )
+							- ( Math.pow( rx, 2 ) * Math.pow( y1, 2 ) ) - ( Math.pow( ry, 2 ) * 
+							Math.pow( x1, 2 ) ) ) / ( Math.pow( rx, 2 ) * Math.pow( y1, 2 ) + 
+							Math.pow( ry, 2 ) * Math.pow( x1,2 ) ));
+						centx1 = s2sqrt * ( rx * y1 ) / ry;
+						centy1 = - s2sqrt * ( ry * x1 ) / rx;
+						// Step 3
+						centx = (centx1 * Math.cos( xAngle ) - centy1 * Math.sin( xAngle )) +
+							( cx + ex ) / 2;
+						centy = (centx1 * Math.sin( xAngle ) + centy1 * Math.cos( xAngle )) +
+							( cy + ey ) / 2;
+						// Step 4 computing the Angles
+						startAngle = this.angleBetweenVectors( 1, 0, (x1 - centx1)/rx,
+							(y1 - centy1)/ry);
+						dAngle = this.angleBetweenVectors( (x1 - centx1)/rx, (y1 - centy1)/ry,
+							(-x1 - centx1)/rx, (-y1 - centy1)/ry );
+						rErrFlag = Math.pow(x1,2)/Math.pow(rx,2)+Math.pow(y1,2)/Math.pow(ry,2);
+						
+
+						// Moding the end angle
+						if( sFlag == 0 && dAngle > 0 ) {
+							dAngle -= 360 * (Math.PI / 180);
+						}
+						if( sFlag == 1 && dAngle < 0 ) {
+							dAngle += 360 * (Math.PI / 180);
+						}
+						// Check the condition for radius
+						if ( rx == 0 && ry == 0 ) {
+							context.lineTo(ex, ey);
+							break;
+						};
+						
+
+						context.save();
+						context.translate( centx, centy );
+						context.rotate( xAngle );
+						context.scale(xShift, yShift);
+				        context.arc(0, 0, radius, startAngle, startAngle + dAngle, 1 - sFlag);
+				        context.restore();
+
+						if ( cmdName == 'A' ) {
+							cx = Number(cmdDetails[i+5]);
+							cy = Number(cmdDetails[i+6]);
+						} else {
+							cx += Number(cmdDetails[i+5]);
+							cy += Number(cmdDetails[i+6]); 
+						}
+					}
+					break;
+				case 'Z':
+				case 'z':
+					context.closePath();
+					break;
+				default :
+			}
+		} 
+
+		if ( elem.attributes['fill'] && elem.attributes['fill'].value != 'none' ) {
+			context.fillStyle = elem.attributes['fill'].value;
+			context.fill();
+		} else if ( elem.attributes['stroke'] && elem.attributes['stroke'].value != 'none' ) {
+			context.strokeStyle = elem.attributes['stroke'].value;
+			context.stroke();
+		} else {
+			context.fill();
+		}
+		if ( elem.attributes['transform'] ) {
+			this.resetTransform( context );
+		}
+	}
+
 	/************************** Draw Methods End ****************************/
 
 	/************************** Support Methods start *************************
 	* Below are the functions that will be usefull for drawing
-	* All reusuable mrthod stays here
+	* All reusuable method stays here
 	***************************************************************************/
 
 	SvgDeCanvo.prototype.startTransform = function ( ctx, data ) {
-		var args = this.stringToArgs( data );
-		if ( data.indexOf("matrix") > -1 ) {
-			ctx.setTransform(args[0], args[1], args[2], args[3], args[4], args[5]);
+		var prevArgs = [],
+			t = data.match(/[^\s][a-z,0-9.\-(\s]+\)/gi),
+			a = 1,
+			b = 0,
+			c = 0,
+			d = 1,
+			e = 0,
+			f = 0,
+			args,
+			i;
+		for ( i in t ) {
+			if ( t[i].indexOf("matrix") > -1 ) {
+				args = this.stringToArgs(t[i]);
+				a = Number(args[0]) == 0 ? Number(args[0]) :
+						a * Number(args[0]);
+				b += Number(args[1]);
+				c += Number(args[2]);
+				d *= Number(args[3]) == 0 ? Number(args[3]) :
+						a * Number(args[3]);
+				e += Number(args[4]);
+				f += Number(args[5]);
+				
+			}
+			if ( t[i].indexOf("translate") > -1 ) {
+				args = this.stringToArgs(t[i]);
+				e += Number(args[0]);
+				f += Number(args[1]);
+				
+			}
 		}
+		ctx.setTransform(a, b, c, d, e, f);
+		
 	}
 
 	SvgDeCanvo.prototype.resetTransform = function ( ctx ) {
@@ -243,13 +485,30 @@ var SvgDeCanvo;
 
 	SvgDeCanvo.prototype.stringToArgs = function ( data ) {
 		var insideBracket = /\(([^\)]+)/.exec(data)[1];
-		if ( data.indexOf(",") > -1 ) {
-			return insideBracket.split(',');
-		} else { // For IE arguments are seperated by space
-			return insideBracket.split(' ');
-		}
+		return this.getArgsAsArray( insideBracket )
 	}
 
-	/************************** Support Methods start *************************/
+	SvgDeCanvo.prototype.getArgsAsArray = function ( data ) {
+		var i;
+		data = data.trim().split(/[\s,]+/);
+
+		for ( i = 0; i < data.length; i++ ) {
+			data[i].trim();
+			if ( data[i].length == 0 ) {
+				data.splice( i, 1 );
+			}
+		}
+		return data;
+	}
+
+	SvgDeCanvo.prototype.angleBetweenVectors = function ( ux, uy, vx, vy ) {
+		var sign = ux*vy < uy*vx ? -1 : 1,
+			dotProduct = ux * vx + uy * vy,
+			uMagnitude = Math.sqrt( Math.pow(ux, 2) + Math.pow(uy, 2)),
+			vMagnitude = Math.sqrt( Math.pow(vx, 2) + Math.pow(vy, 2));
+			return sign * Math.acos(dotProduct/(uMagnitude * vMagnitude));
+	}
+
+	/************************** Support Methods end *************************/
 
 } () );
