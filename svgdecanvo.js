@@ -553,6 +553,7 @@ var SvgDeCanvo;
 			e = 0,
 			f = 0,
 			args,
+			matArr = [],
 			i;
 		// Loop through every transformation
 		for ( i in t ) {
@@ -562,8 +563,8 @@ var SvgDeCanvo;
 						a * Number(args[0]);
 				b += Number(args[1]);
 				c += Number(args[2]);
-				d *= Number(args[3]) == 0 ? Number(args[3]) :
-						a * Number(args[3]);
+				d = Number(args[3]) == 0 ? Number(args[3]) :
+						d * Number(args[3]);
 				e += Number(args[4]);
 				f += Number(args[5]);
 				
@@ -754,7 +755,7 @@ var SvgDeCanvo;
 	SvgDeCanvo.prototype.getPercentValue = function ( percent, value, correction) {
 		var mVal;
 		if (percent.indexOf('%') != -1) {
-			mVal = /(\d+)%/.exec(percent)[1];
+			mVal = /(\d.*)%/.exec(percent)[1];
 			if (mVal > 100){
 				mVal = 100;
 			}
