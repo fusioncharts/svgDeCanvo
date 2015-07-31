@@ -559,24 +559,39 @@ var SvgDeCanvo;
 		for ( i in t ) {
 			if ( t[i].indexOf("matrix") > -1 ) {
 				args = this.stringToArgs(t[i]);
-				a = Number(args[0]) == 0 ? Number(args[0]) :
-						a * Number(args[0]);
-				b += Number(args[1]);
-				c += Number(args[2]);
-				d = Number(args[3]) == 0 ? Number(args[3]) :
-						d * Number(args[3]);
-				e += Number(args[4]);
-				f += Number(args[5]);
-				
+				context.transform(args[0], args[1], args[2], args[3], args[4], args[5]);
 			}
 			if ( t[i].indexOf("translate") > -1 ) {
 				args = this.stringToArgs(t[i]);
-				e += Number(args[0]);
-				f += Number(args[1]);
-				
+				context.translate(args[0] || 0, args[1] || 0);
+			}
+			if ( t[i].indexOf("rotate") > -1 ) {
+				args = this.stringToArgs(t[i]);
+				if (args.length == 3) {
+					context.translate(args[1], args[2]);
+					context.rotate(args[0]*(Math.PI/180));
+					context.translate(-args[1], -args[2]);
+				} else {
+					context.rotate(args[0]*(Math.PI/180));
+				}
+			}
+			if ( t[i].indexOf("scale") > -1 ) {
+				args = this.stringToArgs(t[i]);
+				if (args.length == 1) {
+					context.scale(args[0] || 1, args[0] || 1);
+				} else {
+					context.scale(args[0] || 1, args[1] || 1);
+				}
+			}
+			if ( t[i].indexOf("skewX") > -1 ) {
+				args = this.stringToArgs(t[i]);
+				context.transform(1, 0, Math.tan(args[0]*(Math.PI/180)), 1, 0, 0);
+			}
+			if ( t[i].indexOf("skewY") > -1 ) {
+				args = this.stringToArgs(t[i]);
+				context.transform(1, Math.tan(args[0]*(Math.PI/180)), 0, 1, 0, 0);
 			}
 		}
-		context.setTransform(a, b, c, d, e, f);
 		
 	}
 
