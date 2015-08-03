@@ -86,6 +86,7 @@ var SvgDeCanvo;
 			styleArr = [],
 			styleName,
 			styleValue,
+			dx,dy,
 			i;
 
 		// Copy the parent attributes
@@ -130,7 +131,7 @@ var SvgDeCanvo;
 		}
 
 
-		
+		dx = dy = 0;
 		// if the 
 		for ( i = 0; i < numChldrn; i++ ) {
 			// Keep the defs tag seperate from the dom array
@@ -141,6 +142,14 @@ var SvgDeCanvo;
 			// Keep the unwanted tag out from the dom array
 			if (!chldrn[i].tagName) {
 				continue;
+			}
+			// adjusting the dx dy
+			if (chldrn[i].attributes.dy) {
+				dy = chldrn[i].attributes.dy.value = chldrn[i].attributes.dy.value*1 + dy*1;
+			}
+			// adjusting the dx dy
+			if (chldrn[i].attributes.dx) {
+				dy = chldrn[i].attributes.dx.value = chldrn[i].attributes.dx.value*1 + dx*1;
 			}
 			 
 			// Prepare the dom array with the tag name 
@@ -635,6 +644,8 @@ var SvgDeCanvo;
 		if (elem.attributes['fill-opacity'] && 
 				elem.attributes['fill-opacity'].value != 'none') {
 			context.globalAlpha = elem.attributes['fill-opacity'].value;
+		} else {
+			context.globalAlpha = 1;
 		}
 
 		if (elem.attributes['fill'].value.indexOf("url(") > -1) {
@@ -647,10 +658,7 @@ var SvgDeCanvo;
 	}
 
 	SvgDeCanvo.prototype.endFillEffect = function ( elem ) {
-		if (elem.attributes['fill-opacity'] && 
-				elem.attributes['fill-opacity'].value != 'none') {
-			context.globalAlpha = 1;
-		}
+		context.globalAlpha = 1;
 	}
 
 	SvgDeCanvo.prototype.applyStrokeEffect = function ( elem ) {
@@ -681,6 +689,7 @@ var SvgDeCanvo;
 			}
 			context.lineWidth = 1;
 		}
+		context.globalAlpha = 1;
 	}
 
 	SvgDeCanvo.prototype.getFillStyleById = function ( id ) {
