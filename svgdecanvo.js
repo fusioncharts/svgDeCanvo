@@ -5,7 +5,10 @@ var SvgDeCanvo;
 		doc = win.document,
 		nodeArr = [],
 		drawArr = [],
+		noOfImage = 0,
+		imageArr = [],
 		defs,
+		callbackFn,
 		context,
 		svg,
 		bBox = [];
@@ -32,6 +35,8 @@ var SvgDeCanvo;
         	return;
         }
 		
+		callbackFn = callback;
+
 		// Create the svg document object also if string is passed
 		if (typeof(svgElem.documentElement) != 'undefined') {
 			svg = svgElem;
@@ -42,7 +47,9 @@ var SvgDeCanvo;
 		
 		this.prepareDomTree(nodeArr, [], svg);
 		console.log(nodeArr);
-		this.drawOnCanvas(nodeArr);
+		if (this.drawOnCanvas(nodeArr)) {
+			this.runCallback();
+		}
 		
 	}
 
@@ -56,6 +63,10 @@ var SvgDeCanvo;
 		var a,
 			fncName;
 
+		// run only if all the image id being loaded
+		if (noOfImage !== 0) {
+			return false;
+		}
 		// If the last element and if its related function exist
 		// then call the function to draw it on the canvas
 		if(arr.constructor !== Array) {
@@ -64,13 +75,13 @@ var SvgDeCanvo;
 				this[fncName]( arr );
 			}
 			bBox = [];
-			return;
-		}
+			return true;
+		}  
 		// call the function recursively draw all the innermost node
 		for ( a in arr ) {
 			this.drawOnCanvas( arr[a] );
 		}
-
+		return true;
 	}
 	
 	/*
@@ -126,6 +137,13 @@ var SvgDeCanvo;
 
 		// If this element is the last element in the hirarchy then push it to the array
 		if(numChldrn == 0 || (numChldrn == 1 && !chldrn[0].tagName)) {
+			if (svgElm.tagName == "image") {
+				if (svgElm.attributes['xlink:href']) {
+					this.loadImage(svgElm.attributes['xlink:href'].value, noOfImage);
+					svgElm.attributes['xlink:href'].value = noOfImage;
+					noOfImage++;
+				}
+			}
 			arr.push(svgElm);
 			return;
 		}
@@ -183,6 +201,35 @@ var SvgDeCanvo;
 		  }
 		  
 		  return doc;
+	}
+
+	/*
+	* Method will load the image and store in the array imageArr
+	* @param {string} imgUrl the image URL
+	* @param {Integer} imgInd the index where the image object will be stored
+	 */
+	SvgDeCanvo.prototype.loadImage = function (imgUrl, imgInd) {
+		var img = new Image(),
+		    self = this;
+		try {
+			img.src = imgUrl;
+			img.onload = function (){
+				imageArr[imgInd] = this;
+				noOfImage--;
+				if (self.drawOnCanvas(nodeArr)) {
+					self.runCallback();
+				}
+			}
+		} catch (e) {
+			imageArr[imgInd] = false;
+			noOfImage--;
+		}
+	}
+
+	SvgDeCanvo.prototype.runCallback = function () {
+		if (typeof callbackFn === 'function') {
+			callbackFn();
+		}
 	}
 
 	/************************** Draw Methods start ****************************
@@ -291,6 +338,35 @@ var SvgDeCanvo;
 			this.resetTransform( );
 		}
 		
+	}
+
+	SvgDeCanvo.prototype.drawimage = function (elem) {
+		var x = Number(elem.attributes['x'].value) || 0,
+			y = Number(elem.attributes['y'].value) || 0,
+			height = Number(elem.attributes['height'].value) || 0,
+			width = Number(elem.attributes['width'].value) || 0,
+			imgObj;
+
+		if ( elem.attributes['transform'] ) {
+			this.startTransform( elem.attributes['transform'].value );
+		}
+
+		if (elem.attributes['opacity']) {
+			context.globalAlpha = elem.attributes['opacity'].value;
+		}
+
+		if (elem.attributes['xlink:href']) {
+			imgObj = imageArr[elem.attributes['xlink:href'].value];
+			if (imgObj) {
+				context.drawImage(imgObj, x, y, width, height);
+			}
+		}
+
+		context.globalAlpha = 1;
+		
+		if ( elem.attributes['transform'] ) {
+			this.resetTransform( );
+		}
 	}
 
 	/*
