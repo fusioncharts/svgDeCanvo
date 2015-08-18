@@ -70,9 +70,12 @@ var SvgDeCanvo;
 		// If the last element and if its related function exist
 		// then call the function to draw it on the canvas
 		if(arr.constructor !== Array) {
+			if (arr.attributes['display'] && arr.attributes['display'].value == 'none') {
+				return;
+			}
 			fncName = "draw" + arr.tagName;
 			if( this[fncName] ) {
-				this[fncName]( arr );
+				this[fncName]( arr, 'draw' );
 			}
 			bBox = [];
 			return true;
@@ -122,7 +125,7 @@ var SvgDeCanvo;
 			styleArr = svgElm.attributes['style'].value.replace(/;$/, '').split(';');
 			for ( i in styleArr ) {
 				styleName = styleArr[i].split(':')[0].trim();
-				if ( !svgElm.attributes[styleName] ) {
+				if ( !svgElm.attributes[styleName] || svgElm.attributes[styleName].value == "undefined" ) {
 					// bypass the style element starting with -webkit
 					try {
 						svgElm.setAttribute(styleName, styleArr[i].split(':')[1].trim());
@@ -241,12 +244,12 @@ var SvgDeCanvo;
 	* required to draw it perfectly
 	***************************************************************************/
 
-	SvgDeCanvo.prototype.drawtext = function( elem ) {
+	SvgDeCanvo.prototype.drawtext = function( elem, pps ) {
 		// Internally calling the drawspan function
-		this.drawtspan( elem );
+		this.drawtspan( elem, pps );
 	}
 
-	SvgDeCanvo.prototype.drawtspan = function( elem ) {
+	SvgDeCanvo.prototype.drawtspan = function( elem, pps ) {
 		// innerHTML for chrome and firefox textContent for safari and IE
 		var text = elem.innerHTML || elem.textContent, 
 			x = elem.attributes.x ? elem.attributes.x.value : 0,
@@ -266,6 +269,7 @@ var SvgDeCanvo;
 		y = Number(y) + Number(dy);
 		text = text.trim();
 		textAlign = textAlign == 'middle' ? 'center' : textAlign;
+		context.save();
 		context.font = fontWeight + " " + fontSize + " " + fontFamily;
 		context.textAlign = textAlign;
 		if ( elem.attributes['transform'] ) {
@@ -284,20 +288,129 @@ var SvgDeCanvo;
 		if ( elem.attributes['transform'] ) {
 			this.resetTransform( );
 		}
+		context.restore();
 		
 	}
 
-	SvgDeCanvo.prototype.drawcircle = function( elem ) {
+	SvgDeCanvo.prototype.drawcircle = function( elem, pps) {
 		var cx = Number(elem.attributes['cx'].value),
 			cy = Number(elem.attributes['cy'].value),
 			r = Number(elem.attributes['r'].value);
 		
+		if (pps === 'draw') {
+			context.save();
+		}
+
+		if (elem.attributes['clip-path']) {
+			this.applyClip(elem.attributes['clip-path'].value);
+		}
+
 		if ( elem.attributes['transform'] ) {
 			this.startTransform( elem.attributes['transform'].value );
 		}
 		context.beginPath();
 		context.arc(cx, cy, r, 0, Math.PI*2);
-		this.bBoxFromPoint([cx, cx*1+r*1, cx*1-r*1], [cy, cy*1+r*1, cy*1-r*1])
+		this.bBoxFromPoint([cx, cx*1+r*1, cx*1-r*1], [cy, cy*1+r*1, cy*1-r*1]);
+		if (pps === 'draw') {
+			if ( elem.attributes['fill'] && elem.attributes['fill'].value != 'none' ) {
+				this.applyFillEffect( elem );
+				context.fill();
+				this.endFillEffect( elem );
+			}
+			if ( elem.attributes['stroke'] && elem.attributes['stroke'].value != 'none' ) {
+				this.applyStrokeEffect( elem );
+				context.stroke();
+				this.endStrokeEffect( elem );
+			}
+			if ( elem.attributes['transform'] ) {
+				this.resetTransform( );
+			}
+			context.closePath();
+			context.restore();
+		}
+		
+	}
+
+	SvgDeCanvo.prototype.drawrect = function( elem, pps ) {
+		var x = Number(elem.attributes['x'].value),
+			y = Number(elem.attributes['y'].value),
+			rx = elem.attributes['rx'] ? Number(elem.attributes['rx'].value) : 0,
+			ry = elem.attributes['ry'] ? Number(elem.attributes['ry'].value) : 0,
+			height = Number(elem.attributes['height'].value),
+			width = Number(elem.attributes['width'].value);
+		
+		
+		if (pps === 'draw') {
+			context.save();
+		}
+
+		if (elem.attributes['clip-path']) {
+			this.applyClip(elem.attributes['clip-path'].value);
+		}
+
+		if ( elem.attributes['transform'] ) {
+			this.startTransform( elem.attributes['transform'].value );
+		}
+		this.bBoxFromPoint([x, x+width], [y, y+height]);
+		context.beginPath();
+		context.moveTo(x + rx, y);
+		context.lineTo(x + width - rx, y);
+		context.quadraticCurveTo(x + width, y, x + width, y + ry);
+		context.lineTo(x + width, y + height - ry);
+		context.quadraticCurveTo(x + width, y + height, x + width - rx, y + height);
+		context.lineTo(x + rx, y + height);
+		context.quadraticCurveTo(x, y + height, x, y + height - ry);
+		context.lineTo(x, y + ry);
+		context.quadraticCurveTo(x, y, x + rx, y);
+
+		if (pps === 'draw') {
+			if ( elem.attributes['fill'] && elem.attributes['fill'].value != 'none' ) {
+				this.applyFillEffect( elem );
+				context.fill();
+				this.endFillEffect( elem );
+			}
+			if ( elem.attributes['stroke'] && elem.attributes['stroke'].value != 'none' ) {
+				this.applyStrokeEffect( elem );
+				context.stroke();
+				this.endStrokeEffect( elem );
+			}
+			context.closePath();
+			if ( elem.attributes['transform'] ) {
+				this.resetTransform( );
+			}
+
+			context.restore();
+		}
+		
+	}
+
+	SvgDeCanvo.prototype.drawellipse = function( elem, pps ) {
+		var kappa = 0.5522848,
+			cx = Number(elem.attributes['cx'].value),
+			cy = Number(elem.attributes['cy'].value),
+			rx = Number(elem.attributes['rx'].value),
+			ry = Number(elem.attributes['ry'].value),
+			ox = rx * kappa,
+	        oy = ry * kappa,
+	        xe = cx + rx,
+	        ye = cy + ry;
+
+	    context.save();
+
+		if ( elem.attributes['transform'] ) {
+			this.startTransform( elem.attributes['transform'].value );
+		}
+
+		context.beginPath();
+
+	    context.moveTo(cx - rx, cy);
+	    context.bezierCurveTo(cx - rx, cy - oy, cx - ox, cy - ry, cx, cy - ry);
+	    context.bezierCurveTo(cx + ox, cy - ry, xe, cy - oy, xe, cy);
+	    context.bezierCurveTo(xe, cy + oy, cx + ox, ye, cx, ye);
+	    context.bezierCurveTo(cx - ox, ye, cx - rx, cy + oy, cx - rx, cy);
+
+		this.bBoxFromPoint([cx + rx, cx - rx], [cy + ry, cy - ry]);
+
 		if ( elem.attributes['fill'] && elem.attributes['fill'].value != 'none' ) {
 			this.applyFillEffect( elem );
 			context.fill();
@@ -308,45 +421,22 @@ var SvgDeCanvo;
 			context.stroke();
 			this.endStrokeEffect( elem );
 		}
-		if ( elem.attributes['transform'] ) {
-			this.resetTransform( );
-		}
 		context.closePath();
-		
-	}
-
-	SvgDeCanvo.prototype.drawrect = function( elem ) {
-		var x = Number(elem.attributes['x'].value),
-			y = Number(elem.attributes['y'].value),
-			height = Number(elem.attributes['height'].value),
-			width = Number(elem.attributes['width'].value);
-		this.bBoxFromPoint([x, x+width], [y, y+height]);
-		if ( elem.attributes['transform'] ) {
-			this.startTransform( elem.attributes['transform'].value );
-		}
-		if ( elem.attributes['fill'] && elem.attributes['fill'].value != 'none' ) {
-			this.applyFillEffect( elem );
-			context.fillRect(x, y, width, height);
-			this.endFillEffect( elem );
-		}
-		if ( elem.attributes['stroke'] && elem.attributes['stroke'].value != 'none' ) {
-			this.applyStrokeEffect( elem );
-			context.strokeRect(x, y, width, height);
-			this.endStrokeEffect( elem );
-		}
 		if ( elem.attributes['transform'] ) {
 			this.resetTransform( );
 		}
+		context.restore();
 		
 	}
 
-	SvgDeCanvo.prototype.drawimage = function (elem) {
-		var x = Number(elem.attributes['x'].value) || 0,
-			y = Number(elem.attributes['y'].value) || 0,
-			height = Number(elem.attributes['height'].value) || 0,
-			width = Number(elem.attributes['width'].value) || 0,
+	SvgDeCanvo.prototype.drawimage = function (elem, pps) {
+		var x = elem.attributes['x'] ? Number(elem.attributes['x'].value) : 0,
+			y = elem.attributes['y'] ? Number(elem.attributes['y'].value) : 0,
+			height = elem.attributes['height'] ? Number(elem.attributes['height'].value) : 0,
+			width = elem.attributes['width'] ? Number(elem.attributes['width'].value) : 0,
 			imgObj;
 
+		context.save();
 		if ( elem.attributes['transform'] ) {
 			this.startTransform( elem.attributes['transform'].value );
 		}
@@ -367,6 +457,7 @@ var SvgDeCanvo;
 		if ( elem.attributes['transform'] ) {
 			this.resetTransform( );
 		}
+		context.restore();
 	}
 
 	/*
@@ -374,7 +465,7 @@ var SvgDeCanvo;
 	* @param {attribute object} elem - the object containing all the attribute required
 	* the drawing purpose.
 	 */
-	SvgDeCanvo.prototype.drawpath = function( elem ) {
+	SvgDeCanvo.prototype.drawpath = function( elem, pps ) {
 		var subPath = elem.attributes['d'].value.match( /[a-z][^a-z"]*/ig ),
 			a,
 			cmdName,
@@ -382,6 +473,14 @@ var SvgDeCanvo;
 			cx = 0,
 			cy = 0,
 			i;
+
+		if (pps === 'draw') {
+			context.save();
+		}
+
+		if (elem.attributes['clip-path']) {
+			this.applyClip(elem.attributes['clip-path'].value);
+		}
 
 		// control the transformtion of the object
 		if ( elem.attributes['transform'] ) {
@@ -421,10 +520,9 @@ var SvgDeCanvo;
 					}
 					break;
 				case 'V':
-					for ( i = 0; cmdDetails[i]; i += 2 ) {
-						this.bBoxFromPoint([cx], [cy, cmdDetails[i+1]]);
-						cy = Number(cmdDetails[i+1]);
-						context.moveTo(cx, Number(cmdDetails[i]));
+					for ( i = 0; cmdDetails[i]; i += 1 ) {
+						this.bBoxFromPoint([cx], [cy, cmdDetails[i]]);
+						cy = Number(cmdDetails[i]);
 						context.lineTo(cx, cy);
 					}
 					break;
@@ -432,6 +530,20 @@ var SvgDeCanvo;
 					for ( i = 0; cmdDetails[i]; i += 1 ) {
 						this.bBoxFromPoint([cx], [cy, cy*1 + 1*cmdDetails[i]]);
 						cy += Number(cmdDetails[i]);
+						context.lineTo(cx, cy);
+					}
+					break;
+				case 'H':
+					for ( i = 0; cmdDetails[i]; i += 1 ) {
+						this.bBoxFromPoint([cx, cmdDetails[i]], [cy]);
+						cx = Number(cmdDetails[i]);
+						context.lineTo(cx, cy);
+					}
+					break;
+				case 'h':
+					for ( i = 0; cmdDetails[i]; i += 1 ) {
+						this.bBoxFromPoint([cx, cx*1 + 1*cmdDetails[i]], [cy]);
+						cx += Number(cmdDetails[i]);
 						context.lineTo(cx, cy);
 					}
 					break;
@@ -453,6 +565,7 @@ var SvgDeCanvo;
 						context.quadraticCurveTo(cx + 1*cmdDetails[i], cy + 1*cmdDetails[i+1],
 							cx += Number(cmdDetails[i+2]), cy += Number(cmdDetails[i+3]));
 					}
+					break;
 				case 'C':
 					for ( i = 0; cmdDetails[i]; i += 6 ) {
 						this.cBezierBBox(cx, cy, cmdDetails[i], cmdDetails[i+1],
@@ -598,19 +711,21 @@ var SvgDeCanvo;
 				default :
 			}
 		} 
-
-		if ( elem.attributes['fill'] && elem.attributes['fill'].value != 'none' ) {
-			this.applyFillEffect( elem );
-			context.fill();
-			this.endFillEffect( elem );
-		}
-		if ( elem.attributes['stroke'] && elem.attributes['stroke'].value != 'none' ) {
-			this.applyStrokeEffect( elem );
-			context.stroke();
-			this.endStrokeEffect( elem );
-		}
-		if ( elem.attributes['transform'] ) {
-			this.resetTransform( );
+		if (pps === 'draw') {
+			if ( elem.attributes['fill'] && elem.attributes['fill'].value != 'none' ) {
+				this.applyFillEffect( elem );
+				context.fill();
+				this.endFillEffect( elem );
+			}
+			if ( elem.attributes['stroke'] && elem.attributes['stroke'].value != 'none' ) {
+				this.applyStrokeEffect( elem );
+				context.stroke();
+				this.endStrokeEffect( elem );
+			}
+			if ( elem.attributes['transform'] ) {
+				this.resetTransform( );
+			}
+			context.restore();
 		}
 	}
 
@@ -766,6 +881,35 @@ var SvgDeCanvo;
 			context.lineWidth = 1;
 		}
 		context.globalAlpha = 1;
+	}
+
+	SvgDeCanvo.prototype.applyClip = function ( id ) {
+		var elemId,
+			elem,
+			chldrn,
+			a,
+			fncName;
+
+		if (id.indexOf("url(") === -1) {
+			return;
+		}
+		elemId = /url\(['"]*#([^\)'"]+)/.exec(id)[1];
+		elem = svg.getElementById(elemId);
+		chldrn = elem.childNodes;
+		for (a in chldrn) {
+			if(!chldrn[a].tagName) {
+				continue;
+			}
+			if(chldrn[a].constructor !== Array) {
+				fncName = "draw" + chldrn[a].tagName;
+				if( this[fncName] ) {
+					this[fncName]( chldrn[a], 'clip' );
+					context.closePath();
+					bBox = [];
+				}
+			}
+		}
+		context.clip();
 	}
 
 	SvgDeCanvo.prototype.getFillStyleById = function ( id ) {
