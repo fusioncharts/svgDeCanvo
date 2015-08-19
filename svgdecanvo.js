@@ -863,6 +863,11 @@ var SvgDeCanvo;
 				context.globalAlpha = 0;
 			}
 		}
+		if (elem.attributes['stroke-linecap'] && 
+				elem.attributes['stroke-linecap'].value != 'none' &&
+				context.setLineDash ) {
+			context.lineCap = elem.attributes['stroke-linecap'].value;
+		}
 		if (elem.attributes['stroke-dasharray'] && 
 				elem.attributes['stroke-dasharray'].value != 'none' &&
 				context.setLineDash ) {
