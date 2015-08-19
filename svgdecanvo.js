@@ -256,15 +256,34 @@ var SvgDeCanvo;
 			y = elem.attributes.y ? elem.attributes.y.value : 0,
 			dx = elem.attributes.dx ? elem.attributes.dx.value : 0,
 			dy = elem.attributes.dy ? elem.attributes.dy.value : 0,
-			fontFamily = elem.attributes['font-family'] ? 
-						elem.attributes['font-family'].value : 'serif',
-			fontWeight = elem.attributes['font-weight'] ? 
-						elem.attributes['font-weight'].value : 'normal',
-			textAlign = elem.attributes['text-anchor'] ? 
-						elem.attributes['text-anchor'].value : 'start',
-			fontSize = elem.attributes['font-size'] ? 
-						elem.attributes['font-size'].value : '12px';
-
+			defFontFamily = 'serief',
+			defFontWeight = 'normal',
+			defFontSize = '16px',
+			defCSSprop,
+			fontFamily,
+			fontWeight,
+			textAlign,
+			fontSize;
+		if (doc.getElementsByTagName('body')[0]) {
+			defCSSprop = window.getComputedStyle(document.getElementsByTagName('body')[0],null);
+			if (defCSSprop.getPropertyValue('font-family')) {
+				defFontFamily = defCSSprop.getPropertyValue('font-family');
+			}
+			if (defCSSprop.getPropertyValue('font-weight')) {
+				defFontWeight = defCSSprop.getPropertyValue('font-weight');
+			}
+			if (defCSSprop.getPropertyValue('font-size')) {
+				defFontSize = defCSSprop.getPropertyValue('font-size');
+			}
+		}
+		fontFamily = elem.attributes['font-family'] ? 
+					elem.attributes['font-family'].value : defFontFamily,
+		fontWeight = elem.attributes['font-weight'] ? 
+					elem.attributes['font-weight'].value : defFontWeight,
+		textAlign = elem.attributes['text-anchor'] ? 
+					elem.attributes['text-anchor'].value : 'start',
+		fontSize = elem.attributes['font-size'] ? 
+					elem.attributes['font-size'].value : defFontSize;
 		x = Number(x) + Number(dx);
 		y = Number(y) + Number(dy);
 		text = text.trim();
@@ -864,8 +883,7 @@ var SvgDeCanvo;
 			}
 		}
 		if (elem.attributes['stroke-linecap'] && 
-				elem.attributes['stroke-linecap'].value != 'none' &&
-				context.setLineDash ) {
+				elem.attributes['stroke-linecap'].value != 'none') {
 			context.lineCap = elem.attributes['stroke-linecap'].value;
 		}
 		if (elem.attributes['stroke-dasharray'] && 
