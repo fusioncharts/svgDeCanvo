@@ -959,16 +959,16 @@ var SvgDeCanvo;
 	SvgDeCanvo.prototype.getRadialGradient = function ( element ) {
 		var cx = element.attributes['cx'] ? this.getPercentValue(
 			element.attributes['cx'].value, bBox['xMax'] - bBox['xMin'], bBox['xMin']) : 
-			(bBox['xMax'] - bBox['xMin'])*0.5,
+			bBox['xMin'] + (bBox['xMax'] - bBox['xMin'])*0.5,
 			cy = element.attributes['cy'] ? this.getPercentValue(
 			element.attributes['cy'].value, bBox['yMax'] - bBox['yMin'], bBox['yMin']) : 
-			(bBox['yMax'] - bBox['yMin'])*0.5,
+			bBox['yMin'] + (bBox['yMax'] - bBox['yMin'])*0.5,
 			fx = element.attributes['fx'] ? this.getPercentValue(
 			element.attributes['fx'].value, bBox['xMax'] - bBox['xMin'], bBox['xMin']) :
-			(bBox['xMax'] - bBox['xMin'])*0.5,
+			bBox['xMin'] + (bBox['xMax'] - bBox['xMin'])*0.5,
 			fy = element.attributes['fy'] ? this.getPercentValue(
 			element.attributes['fy'].value, bBox['yMax'] - bBox['yMin'], bBox['yMin']) :
-			(bBox['yMax'] - bBox['yMin'])*0.5,
+			bBox['yMin'] + (bBox['yMax'] - bBox['yMin'])*0.5,
 			r = element.attributes['r'] ? this.getPercentValue(
 			element.attributes['r'].value, (bBox['yMax'] - bBox['yMin'] + 
 				bBox['xMax'] - bBox['xMin'])/2, 0) : this.getPercentValue(
@@ -1013,7 +1013,7 @@ var SvgDeCanvo;
 	}
 
 	SvgDeCanvo.prototype.bBoxFromPoint = function ( xPointArr, yPointArr ) {
-		if (bBox['xMin']) {
+		if (typeof bBox['xMin'] !== 'undefined') {
 			xPointArr.push(bBox['xMin'], bBox['xMax']);
 			yPointArr.push(bBox['yMin'], bBox['yMax']);
 		}
@@ -1031,8 +1031,8 @@ var SvgDeCanvo;
         	xMin, yMin, xMax, yMax, xArr, yArr, isBetween;
 
         if (transform instanceof Array) {
-        	cx = cx * transform[0] + cy * transform[2] + transform[4];
-        	cy = cx * transform[1] + cy * transform[3] + transform[5];
+        	cx = cx * transform[0] + cx * transform[2] + transform[4];
+        	cy = cy * transform[1] + cy * transform[3] + transform[5];
         }
         isBetween = function( start, end, angle ) {
         	// making the start angle and end angle negative
@@ -1066,8 +1066,8 @@ var SvgDeCanvo;
         endArcX = cx + r * Math.cos(rea);
         endArcY = cy + r * Math.sin(rea);
 
-        xArr = [cx, startArcX, endArcX];
-        yArr = [cy, startArcY, endArcY];
+        xArr = [startArcX, endArcX];
+        yArr = [startArcY, endArcY];
 
         if (isBetween(rsa, rea, 0)){
 			xArr.push(cx*1 + r*1);
@@ -1090,7 +1090,7 @@ var SvgDeCanvo;
 		yMax = Math.max.apply(this, yArr);
 		yMin = Math.min.apply(this, yArr);
 
-		if (bBox['xMin']) {
+		if (typeof bBox['xMin'] !== 'undefined') {
 			bBox['xMin'] = Math.min(xMin, bBox['xMin']);
 			bBox['xMax'] = Math.max(xMax, bBox['xMax']);
 			bBox['yMin'] = Math.min(yMin, bBox['yMin']);
@@ -1145,11 +1145,11 @@ var SvgDeCanvo;
 			yMin = Math.min(sy,ex,curveY);
 		}
 		
-		if (bBox['xMin']) {
+		if (typeof bBox['xMin'] !== 'undefined') {
 			bBox['xMin'] = Math.min(xMin, bBox['xMin']);
-			bBox['xMax'] = Math.min(xMax, bBox['xMax']);
+			bBox['xMax'] = Math.max(xMax, bBox['xMax']);
 			bBox['yMin'] = Math.min(yMin, bBox['yMin']);
-			bBox['yMax'] = Math.min(yMax, bBox['yMax']);
+			bBox['yMax'] = Math.max(yMax, bBox['yMax']);
 		} else {
 			bBox['xMin'] = xMin;
 			bBox['xMax'] = xMax;
@@ -1250,11 +1250,11 @@ var SvgDeCanvo;
 	            }
 	        }
 	    }
-	    if (bBox['xMin']) {
+	    if (typeof bBox['xMin'] !== 'undefined') {
 			bBox['xMin'] = Math.min(xMin, bBox['xMin']);
-			bBox['xMax'] = Math.min(xMax, bBox['xMax']);
+			bBox['xMax'] = Math.max(xMax, bBox['xMax']);
 			bBox['yMin'] = Math.min(yMin, bBox['yMin']);
-			bBox['yMax'] = Math.min(yMax, bBox['yMax']);
+			bBox['yMax'] = Math.max(yMax, bBox['yMax']);
 		} else {
 			bBox['xMin'] = xMin;
 			bBox['xMax'] = xMax;
