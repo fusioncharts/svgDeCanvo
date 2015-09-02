@@ -12,69 +12,90 @@
 	* @param {function} - The function to be called after successsfully drawing in canvas
 	*/
 	win.SvgDeCanvo = function ( svgElem, canvasElem, callback ) {
-		var callbackFn = function(){},
-			context,
-			svg;
+		var store = {
+				svg: '',
+				context: '',
+				callBack: '',
+				imageArr: []
+			};
 
         // Check if call as class or function
         if (!(this instanceof SvgDeCanvo)) {
         	throw("This function should be used as class");
         }
 
-        // Setter function for the context element
-        this.setContext = function (canvasElem) {
-        	if ( canvasElem.getContext && canvasElem.getContext('2d') ) {
-	        	// Assigning the 2d context
-	        	context = canvasElem.getContext('2d');
-	        	// Clearing the canvas for fresh rendering
-	        	context.clearRect(0, 0, canvasElem.width, canvasElem.height);
-	        } else { // if canvas is not supported
-	        	throw "Please provide valid canvas";
-	        }
+        this._getStore = function(param) {
+        	if (typeof store[param] != 'undefined') {
+        		return store[param];
+        	} else {
+        		return false;
+        	}
         }
 
-        // Getter function for the context object
-        this.getContext = function() {
-        	return context;
+        this._setStore = function(param, value) {
+        	if (typeof store[param] != 'undefined') {
+        		store[param] = value;
+        	}
         }
 
-        // Setter function for the SVG element
-        this.setSVG = function (svgElem) {
-        	// Create the svg document object also if string is passed
-			if (typeof(svgElem.documentElement) != 'undefined') {
-				svg = svgElem;
-			}
-			else if (svgElem.substr(0,1) == '<') {
-				svg = utilLib.StrToDom(svgElem);
-			} else {
-				throw "Please provide valid SVG";
-			}
-        }
-
-        // Getter function for SVG element
-        this.getSVG = function () {
-        	return svg;
-        }
-
-        this.setCallback = function (callback) {
-        	if (typeof callback === 'function') {
-				callbackFn = callback;
-			}
-        }
-
-        this.getCallback = function () {
-        	return callbackFn;
-        }
+        
 
         this.setSVG(svgElem);
         this.setContext(canvasElem);
         this.setCallback(callback);
         this.drawOnCanvas();
 
-		
-		return this;
-		
 	}
+
+	// Setter function for the context element
+    SvgDeCanvo.prototype.setContext = function (canvasElem) {
+    	var context;
+    	if ( canvasElem.getContext && canvasElem.getContext('2d') ) {
+        	// Assigning the 2d context
+        	context = canvasElem.getContext('2d');
+        	// Clearing the canvas for fresh rendering
+        	context.clearRect(0, 0, canvasElem.width, canvasElem.height);
+        	this._setStore('context', context);
+        } else { // if canvas is not supported
+        	throw "Please provide valid canvas";
+        }
+    }
+
+    // Getter function for the context object
+    SvgDeCanvo.prototype.getContext = function() {
+    	return this._getStore('context');
+    }
+
+    // Setter function for the SVG element
+    SvgDeCanvo.prototype.setSVG = function (svgElem) {
+    	var svg;
+    	// Create the svg document object also if string is passed
+		if (typeof(svgElem.documentElement) != 'undefined') {
+			svg = svgElem;
+			this._setStore('svg', svg);
+		}
+		else if (svgElem.substr(0,1) == '<') {
+			svg = utilLib.StrToDom(svgElem);
+			this._setStore('svg', svg);
+		} else {
+			throw "Please provide valid SVG";
+		}
+    }
+
+    // Getter function for SVG element
+    SvgDeCanvo.prototype.getSVG = function () {
+    	return this._getStore('svg');
+    }
+
+    SvgDeCanvo.prototype.setCallback = function (callback) {
+    	if (typeof callback === 'function') {
+			this._setStore('callBack', callback);
+		}
+    }
+
+    SvgDeCanvo.prototype.getCallback = function () {
+    	return this._getStore('callBack');
+    }
 
 	/*
 	* Method that draw the element in the dom tree in order
@@ -85,52 +106,9 @@
 	SvgDeCanvo.prototype.drawOnCanvas = function () {
 		var callback = this.getCallback(),
 			context = this.getContext(),
-			svg = this.getSVG(),
-			self = this,
-			imgElem,
-			imgUrl,
-			i;
-		this.imageArr = [];
-		imgElem = document.getElementsByTagName('image');
-		for (i in imgElem) {
-			if (!imgElem.hasOwnProperty(i)) {
-				continue;
-			}
-			if (imgElem[i].attributes && imgElem[i].attributes['xlink:href']) {
-				imgUrl = imgElem[i].attributes['xlink:href'].value;
-				if (!this.imageArr[imgUrl]) {
-					this.imageArr[imgUrl] = [];
-					this.imageArr[imgUrl]['status'] = 'progress';
-					this.imageArr[imgUrl]['callback'] = null;
-					this.imageArr[imgUrl]['obj'] = new Image();
-					this.imageArr[imgUrl]['obj'].onload = (function (imgUrl) {
-						return function () {
-							var callback = self.imageArr[imgUrl]['callback'];
-							if (callback) {
-								self.imageArr[imgUrl]['status'] = 'complete';
-								callback();
-							} else {
-								self.imageArr[imgUrl]['status'] = 'complete';
-							}
-						}
-					})(imgUrl)
-					this.imageArr[imgUrl]['obj'].onerror = (function (imgUrl) {
-						return function () {
-							var errCallback = self.imageArr[imgUrl]['errCallback'];
-							if (errCallback) {
-								self.imageArr[imgUrl]['status'] = 'error';
-								errCallback();
-							} else {
-								self.imageArr[imgUrl]['status'] = 'error';
-							}
-						}
-					})(imgUrl);
-					this.imageArr[imgUrl]['obj'].src = imgUrl;
-				}
-			}
-		}
-
-		utilLib.drawNodes([svg], [], this, context, function () { callback(); });
+			svg = this.getSVG();
+		utilLib.storeImagesInArr(this);
+		utilLib.drawNodes([svg], [], this, context, callback);
 	}
 
 
@@ -246,7 +224,7 @@
 			textAlign,
 			fontSize;
 		if (doc.getElementsByTagName('body')[0]) {
-			defCSSprop = window.getComputedStyle(document.getElementsByTagName('body')[0],null);
+			defCSSprop = win.getComputedStyle(doc.getElementsByTagName('body')[0],null);
 			if (defCSSprop.getPropertyValue('font-family')) {
 				defFontFamily = defCSSprop.getPropertyValue('font-family');
 			}
@@ -405,7 +383,8 @@
 			y = elem.attributes['y'] ? Number(elem.attributes['y'].value) : 0,
 			height = elem.attributes['height'] ? Number(elem.attributes['height'].value) : 0,
 			width = elem.attributes['width'] ? Number(elem.attributes['width'].value) : 0,
-			imgUrl;
+			imgUrl,
+			imageArr = svgDeCanvo._getStore('imageArr');;
 
 		context.save();
 		if (elem.attributes['opacity']) {
@@ -414,29 +393,29 @@
 
 		if (elem.attributes['xlink:href']) {
 			imgUrl = elem.attributes['xlink:href'].value;
-			if(svgDeCanvo.imageArr[imgUrl]['status'] === 'complete') {
-				context.drawImage(svgDeCanvo.imageArr[imgUrl]['obj'], x, y, width, height);
+			if(imageArr[imgUrl]['status'] === 'complete') {
+				context.drawImage(imageArr[imgUrl]['obj'], x, y, width, height);
 				context.globalAlpha = 1;
 				context.restore();
 				if (typeof callBackFn === 'function') {
 					callBackFn();
 				}
-			} else if (svgDeCanvo.imageArr[imgUrl]['status'] === 'error') {
+			} else if (imageArr[imgUrl]['status'] === 'error') {
 				context.globalAlpha = 1;
 				context.restore();
 				if (typeof callBackFn === 'function') {
 					callBackFn();
 				}
-			} else if (svgDeCanvo.imageArr[imgUrl]['status'] === 'progress') {
-				svgDeCanvo.imageArr[imgUrl]['callback'] = function () {
-					context.drawImage(svgDeCanvo.imageArr[imgUrl]['obj'], x, y, width, height);
+			} else if (imageArr[imgUrl]['status'] === 'progress') {
+				imageArr[imgUrl]['callback'] = function () {
+					context.drawImage(imageArr[imgUrl]['obj'], x, y, width, height);
 					context.globalAlpha = 1;
 					context.restore();
 					if (typeof callBackFn === 'function') {
 						callBackFn();
 					}
 				}
-				svgDeCanvo.imageArr[imgUrl]['errCallback'] = function () {
+				imageArr[imgUrl]['errCallback'] = function () {
 					context.globalAlpha = 1;
 					context.restore();
 					if (typeof callBackFn === 'function') {
@@ -756,6 +735,53 @@
 				}
 			};
 		callBackFn();
+	}
+
+	utilLib.storeImagesInArr = function(svgDeCanvo) {
+		var svg = svgDeCanvo.getSVG(),
+			imgElem,
+			imgUrl,
+			imageArr,
+			i;
+		imageArr = svgDeCanvo._getStore('imageArr');
+		imgElem = svg.getElementsByTagName('image');
+		for (i in imgElem) {
+			if (!imgElem.hasOwnProperty(i)) {
+				continue;
+			}
+			if (imgElem[i].attributes && imgElem[i].attributes['xlink:href']) {
+				imgUrl = imgElem[i].attributes['xlink:href'].value;
+				if (!imageArr[imgUrl]) {
+					imageArr[imgUrl] = [];
+					imageArr[imgUrl]['status'] = 'progress';
+					imageArr[imgUrl]['callback'] = null;
+					imageArr[imgUrl]['obj'] = new Image();
+					imageArr[imgUrl]['obj'].onload = (function (imgUrl) {
+						return function () {
+							var callback = imageArr[imgUrl]['callback'];
+							if (callback) {
+								imageArr[imgUrl]['status'] = 'complete';
+								callback();
+							} else {
+								imageArr[imgUrl]['status'] = 'complete';
+							}
+						}
+					})(imgUrl)
+					imageArr[imgUrl]['obj'].onerror = (function (imgUrl) {
+						return function () {
+							var errCallback = imageArr[imgUrl]['errCallback'];
+							if (errCallback) {
+								imageArr[imgUrl]['status'] = 'error';
+								errCallback();
+							} else {
+								imageArr[imgUrl]['status'] = 'error';
+							}
+						}
+					})(imgUrl);
+					imageArr[imgUrl]['obj'].src = imgUrl;
+				}
+			}
+		}
 	}
 	/*
 	* Method to handle the various transformation
