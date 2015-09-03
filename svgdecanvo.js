@@ -910,7 +910,7 @@
 		}
 
 		if (elem.attributes['fill'] && elem.attributes['fill'].value.indexOf("url(") > -1) {
-			fillValue = utilLib.getFillStyleById(/url\(['"]*#([^\)'"]+)/
+			fillValue = utilLib.getFillStyleById(/url\(.*#([^\)'"]+)/
 					.exec(elem.attributes['fill'].value)[1], context, svgDeCanvo, bBox);
 			context.fillStyle = fillValue;
 		} else {
@@ -977,7 +977,7 @@
 		if (id.indexOf("url(") === -1) {
 			return;
 		}
-		elemId = /url\(['"]*#([^\)'"]+)/.exec(id)[1];
+		elemId = /url\(.*#([^\)'"]+)/.exec(id)[1];
 		elem = svg.getElementById(elemId);
 		chldrn = elem.childNodes;
 		for (a in chldrn) {
