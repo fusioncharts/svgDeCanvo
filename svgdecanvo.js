@@ -37,12 +37,15 @@
         		store[param] = value;
         	}
         }
-
-        
-
-        this.setSVG(svgElem);
-        this.setContext(canvasElem);
-        this.setCallback(callback);
+        if (svgElem) {
+        	this.setSVG(svgElem);
+        }
+        if (canvasElem) {
+        	this.setContext(canvasElem);
+        }
+        if (callback) {
+        	this.setCallback(callback);
+        }
         this.drawOnCanvas();
 
 	}
@@ -103,10 +106,27 @@
 	* Element of a node.
 	* @param {array} arr - the dom array
 	 */
-	SvgDeCanvo.prototype.drawOnCanvas = function () {
-		var callback = this.getCallback(),
-			context = this.getContext(),
-			svg = this.getSVG();
+	SvgDeCanvo.prototype.drawOnCanvas = function ( svgElem, canvasElem, callback ) {
+		var callback,
+			context,
+			svg;
+
+		if (svgElem) {
+        	this.setSVG(svgElem);
+        }
+        if (canvasElem) {
+        	this.setContext(canvasElem);
+        }
+        if (callback) {
+        	this.setCallback(callback);
+        }
+
+		callback = this.getCallback();
+		context = this.getContext();
+		svg = this.getSVG();
+		if (!svg || !context) {
+			return;
+		}
 		utilLib.storeImagesInArr(this);
 		utilLib.drawNodes([svg], [], this, context, callback);
 	}
