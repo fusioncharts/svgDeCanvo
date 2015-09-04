@@ -56,8 +56,11 @@
     	if ( canvasElem.getContext && canvasElem.getContext('2d') ) {
         	// Assigning the 2d context
         	context = canvasElem.getContext('2d');
+        	context.save();
+        	context.fillStyle = '#ffffff';
         	// Clearing the canvas for fresh rendering
-        	context.clearRect(0, 0, canvasElem.width, canvasElem.height);
+        	context.fillRect(0, 0, canvasElem.width, canvasElem.height);
+        	context.restore();
         	this._setStore('context', context);
         } else { // if canvas is not supported
         	throw "Please provide valid canvas";
@@ -343,7 +346,7 @@
 			if ( !elem.attributes['fill'] || (elem.attributes['fill'] && elem.attributes['fill'].value != 'none') ) {
 				utilLib.applyFillEffect( elem, context, svgDeCanvo, bBox );
 				context.fill();
-				utilLib.endFillEffect ( elem, context );elem
+				utilLib.endFillEffect ( elem, context );
 			}
 			if ( !elem.attributes['stroke'] || (elem.attributes['stroke'] && elem.attributes['stroke'].value != 'none') ) {
 				utilLib.applyStrokeEffect( elem, context, svgDeCanvo, bBox );
