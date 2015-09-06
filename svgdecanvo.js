@@ -1038,7 +1038,7 @@
 					children[a].attributes['stop-opacity'].value : 1;
 				if (color.status) {
 					linGrad.addColorStop(utilLib.getPercentValue(children[a].attributes['offset'].value, 1, 0),
-				 		'rgba('+color.r+','+color.g+','+color.b+','+opacity+')');
+				 		'rgba('+color.r+','+color.g+','+color.b+','+Number(opacity)+')');
 				} else {
 					linGrad.addColorStop(utilLib.getPercentValue(children[a].attributes['offset'].value, 1, 0),
 				 		children[a].attributes['stop-color'].value);
@@ -1081,7 +1081,7 @@
 					children[a].attributes['stop-opacity'].value : 1;
 				if (color.status) {
 					radGrad.addColorStop(utilLib.getPercentValue(children[a].attributes['offset'].value, 1, 0),
-				 		'rgba('+color.r+','+color.g+','+color.b+','+opacity+')');
+				 		'rgba('+color.r+','+color.g+','+color.b+','+Number(opacity)+')');
 				} else {
 					radGrad.addColorStop(utilLib.getPercentValue(children[a].attributes['offset'].value, 1, 0),
 				 		children[a].attributes['stop-color'].value);
