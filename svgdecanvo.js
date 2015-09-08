@@ -944,6 +944,10 @@
 				elem.attributes['stroke-linecap'].value != 'none') {
 			context.lineCap = elem.attributes['stroke-linecap'].value;
 		}
+		if (elem.attributes['stroke-linejoin'] && 
+				elem.attributes['stroke-linejoin'].value != 'none') {
+			context.lineJoin = elem.attributes['stroke-linejoin'].value;
+		}
 		if (elem.attributes['stroke-dasharray'] && 
 				elem.attributes['stroke-dasharray'].value != 'none' &&
 				context.setLineDash ) {
