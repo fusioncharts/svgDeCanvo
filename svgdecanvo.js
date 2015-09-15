@@ -642,6 +642,9 @@
 							- ( Math.pow( rx, 2 ) * Math.pow( y1, 2 ) ) - ( Math.pow( ry, 2 ) * 
 							Math.pow( x1, 2 ) ) ) / ( Math.pow( rx, 2 ) * Math.pow( y1, 2 ) + 
 							Math.pow( ry, 2 ) * Math.pow( x1,2 ) ));
+						if (isNaN(s2sqrt)) {
+							s2sqrt = 0;
+						}
 						centx1 = s2sqrt * ( rx * y1 ) / ry;
 						centy1 = - s2sqrt * ( ry * x1 ) / rx;
 						// Step 3
