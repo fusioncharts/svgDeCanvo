@@ -989,6 +989,12 @@
 		}
 		elemId = /url\(.*#([^\)'"]+)/.exec(id)[1];
 		elem = svg.getElementById(elemId);
+		if (elem.attributes) {
+			context.save();
+			if ( elem.attributes['transform'] ) {
+				utilLib.startTransform( elem.attributes['transform'].value, context );
+			}
+		}
 		chldrn = elem.childNodes;
 		for (a in chldrn) {
 			if (!chldrn.hasOwnProperty(a)) {
@@ -999,11 +1005,23 @@
 			}
 			if(chldrn[a].constructor !== Array) {
 				fncName = "draw" + chldrn[a].tagName;
+				if (chldrn[a].attributes) {
+					context.save();
+					if ( chldrn[a].attributes['transform'] ) {
+						utilLib.startTransform( chldrn[a].attributes['transform'].value, context );
+					}
+				}
 				if( drawLib[fncName] ) {
 					drawLib[fncName]( chldrn[a], context, svgDeCanvo, 'clip');
 					context.closePath();
 				}
+				if (chldrn[a].attributes) {
+					context.restore();
+				}
 			}
+		}
+		if (elem.attributes) {
+			context.restore();
 		}
 		context.clip();
 	}
@@ -1235,7 +1253,7 @@
 			xMax = Math.max(sx,ex);
 			xMin = Math.min(sx,ex);
 			yMax = Math.max(sy,ey);
-			yMin = Math.min(sy,ex);
+			yMin = Math.min(sy,ey);
 		} else {
 			tx = (sx - cx) / txd;
 			ty = (sy - cy) / tyd;
@@ -1245,7 +1263,7 @@
 			xMax = Math.max(sx,ex,curveX);
 			xMin = Math.min(sx,ex,curveX);
 			yMax = Math.max(sy,ey,curveY);
-			yMin = Math.min(sy,ex,curveY);
+			yMin = Math.min(sy,ey,curveY);
 		}
 		
 		if (typeof bBox['xMin'] !== 'undefined') {
