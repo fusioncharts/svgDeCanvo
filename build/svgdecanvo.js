@@ -1,5 +1,5 @@
 /**!
- * SvgDeCanvo 0.1.0 - JavaScript Vector Library
+ * SvgDeCanvo 1.0.0 - JavaScript Vector Library
  * Copyright (c) 2015-2016 FusionCharts Technologies <http://www.fusioncharts.com>
  * Licensed under the MIT license.
  */
