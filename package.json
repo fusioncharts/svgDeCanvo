@@ -1,0 +1,13 @@
+{
+  "name": "svgdecanvo",
+  "version": "0.1.0",
+  "buildOrder": [
+    "src/svgdecanvo.js"
+  ],
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-contrib-concat": "^1.0.0",
+    "grunt-contrib-jshint": "^1.0.0",
+    "grunt-contrib-uglify": "^1.0.1"
+  }
+}
