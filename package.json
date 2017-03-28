@@ -1,6 +1,6 @@
 {
   "name": "svgdecanvo",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "SVG to Canvas Converter",
   "main": "./lib/svgdecanvo.js",
   "source": {
