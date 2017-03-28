@@ -1,10 +1,5 @@
-/**!
- * SvgDeCanvo 1.0.0 - JavaScript Vector Library
- * Copyright (c) 2015-2016 FusionCharts Technologies <http://www.fusioncharts.com>
- * Licensed under the MIT license.
- */
-(function(win) {
-    var doc = win.document,
+    var win = typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : null,
+        doc = win.document,
         drawLib = {},
         utilLib = {},
         SvgDeCanvo;
@@ -1532,6 +1527,4 @@
 
     /************************** Support Methods end *************************/
 
-    win.SvgDeCanvo = SvgDeCanvo;
-
-}(this.window || window));
+    module.exports = SvgDeCanvo;
