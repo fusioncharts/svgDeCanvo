@@ -175,7 +175,9 @@
     drawLib.common = function(node, attrib, svgDeCanvo, context, callBack) {
         var children = node.childNodes,
             fnName,
-            i,
+                        i,
+                        styleArr,
+                        styleName,
             callBackFn = function() {
                 //restore if any required
                 if (node.attributes) {
@@ -288,11 +290,11 @@
             }
         }
         fontFamily = elem.attributes['font-family'] ?
-            elem.attributes['font-family'].value : defFontFamily,
+            elem.attributes['font-family'].value : defFontFamily;
             fontWeight = elem.attributes['font-weight'] ?
-            elem.attributes['font-weight'].value : defFontWeight,
+            elem.attributes['font-weight'].value : defFontWeight;
             textAlign = elem.attributes['text-anchor'] ?
-            elem.attributes['text-anchor'].value : 'start',
+            elem.attributes['text-anchor'].value : 'start';
             fontSize = elem.attributes['font-size'] ?
             elem.attributes['font-size'].value : defFontSize;
         x = Number(x) + Number(dx);
@@ -797,7 +799,9 @@
         var ret = {
             width: 0,
             height: 0
-        };
+                },
+                node;
+
         node = svg.childNodes && svg.childNodes[0] && svg.childNodes[0].attributes;
         ret.width = Number(node.width && node.width.value || 0);
         ret.height = Number(node.height && node.height.value || 0);
@@ -980,7 +984,7 @@
         }
         if (elem.attributes['stroke-width']) {
             context.lineWidth = elem.attributes['stroke-width'].value;
-            if (elem.attributes['stroke-width'].value === 0) {
+            if (elem.attributes['stroke-width'].value === '0') {
                 context.globalAlpha = 0;
             }
         }
@@ -1090,7 +1094,7 @@
                 element.attributes.x2.value, bBox.xMax - bBox.xMin, bBox.xMin) : 0,
             ey = element.attributes.y2 ? utilLib.getPercentValue(
                 element.attributes.y2.value, bBox.yMax - bBox.yMin, bBox.yMin) : 0,
-            lingrad, children, a, color, opacity;
+                                linGrad, children, a, color, opacity;
 
         linGrad = context.createLinearGradient(sx, sy, ex, ey);
         children = element.childNodes;
@@ -1428,7 +1432,7 @@
     };
 
     utilLib.combineTransformMatrix = function(matrices) {
-        var mlast = matrices.length - 1,
+        var mlast = matrices.length - 1, i,
             resMatrix;
         if (mlast <= 0) {
             return matrices[0];

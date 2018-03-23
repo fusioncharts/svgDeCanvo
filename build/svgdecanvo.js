@@ -4,7 +4,7 @@
  * Copyright (c) 2015-2016 FusionCharts Technologies <http://www.fusioncharts.com>
  * Licensed under the MIT license.
  */
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function(){function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s}return e})()({1:[function(require,module,exports){
 (function (global){
 var SvgDeCanvo = require('./svgdecanvo');
 
@@ -184,6 +184,8 @@ drawLib.common = function (node, attrib, svgDeCanvo, context, callBack) {
     var children = node.childNodes,
         fnName,
         i,
+        styleArr,
+        styleName,
         callBackFn = function () {
         //restore if any required
         if (node.attributes) {
@@ -288,7 +290,10 @@ drawLib.drawtspan = function (elem, context, svgDeCanvo, pps, callBackFn) {
             defFontSize = defCSSprop.getPropertyValue('font-size');
         }
     }
-    fontFamily = elem.attributes['font-family'] ? elem.attributes['font-family'].value : defFontFamily, fontWeight = elem.attributes['font-weight'] ? elem.attributes['font-weight'].value : defFontWeight, textAlign = elem.attributes['text-anchor'] ? elem.attributes['text-anchor'].value : 'start', fontSize = elem.attributes['font-size'] ? elem.attributes['font-size'].value : defFontSize;
+    fontFamily = elem.attributes['font-family'] ? elem.attributes['font-family'].value : defFontFamily;
+    fontWeight = elem.attributes['font-weight'] ? elem.attributes['font-weight'].value : defFontWeight;
+    textAlign = elem.attributes['text-anchor'] ? elem.attributes['text-anchor'].value : 'start';
+    fontSize = elem.attributes['font-size'] ? elem.attributes['font-size'].value : defFontSize;
     x = Number(x) + Number(dx);
     y = Number(y) + Number(dy);
     text = text.trim();
@@ -749,7 +754,9 @@ utilLib.getSvgDimention = function (svg) {
     var ret = {
         width: 0,
         height: 0
-    };
+    },
+        node;
+
     node = svg.childNodes && svg.childNodes[0] && svg.childNodes[0].attributes;
     ret.width = Number(node.width && node.width.value || 0);
     ret.height = Number(node.height && node.height.value || 0);
@@ -928,7 +935,7 @@ utilLib.applyStrokeEffect = function (elem, context, svgDeCanvo, bBox) {
     }
     if (elem.attributes['stroke-width']) {
         context.lineWidth = elem.attributes['stroke-width'].value;
-        if (elem.attributes['stroke-width'].value === 0) {
+        if (elem.attributes['stroke-width'].value === '0') {
             context.globalAlpha = 0;
         }
     }
@@ -1028,7 +1035,7 @@ utilLib.getLinearGradient = function (element, context, bBox) {
         sy = element.attributes.y1 ? utilLib.getPercentValue(element.attributes.y1.value, bBox.yMax - bBox.yMin, bBox.yMin) : 0,
         ex = element.attributes.x2 ? utilLib.getPercentValue(element.attributes.x2.value, bBox.xMax - bBox.xMin, bBox.xMin) : 0,
         ey = element.attributes.y2 ? utilLib.getPercentValue(element.attributes.y2.value, bBox.yMax - bBox.yMin, bBox.yMin) : 0,
-        lingrad,
+        linGrad,
         children,
         a,
         color,
@@ -1348,6 +1355,7 @@ utilLib.cBezierBBox = function (sx, sy, cx, cy, c1x, c1y, ex, ey, bBox) {
 
 utilLib.combineTransformMatrix = function (matrices) {
     var mlast = matrices.length - 1,
+        i,
         resMatrix;
     if (mlast <= 0) {
         return matrices[0];
