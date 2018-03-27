@@ -2,10 +2,11 @@
   "name": "svgdecanvo",
   "version": "1.0.1",
   "description": "SVG to Canvas Converter",
-  "main": "./lib/svgdecanvo.js",
+  "main": "./build/svgdecanvo.min.js",
+  "module": "./src/svgdecanvo.js",
   "source": {
     "src": "./src",
-    "name": "./index"
+    "name": "svgdecanvo"
   },
   "build": {
     "dist": "./build",
@@ -24,7 +25,7 @@
     "start": "gulp start",
     "lint": "eslint ./src/ gulpfile.js",
     "build:sample": "gulp build:sample",
-    "build": "gulp build",
+    "build:dist": "rm -rf ./build && rollup -c",
     "benchmark": "tests/benchmark/run.sh"
   },
   "repository": {
@@ -37,21 +38,6 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "babel-preset-es2015": "^6.24.0",
-    "babelify": "^7.3.0",
-    "browserify": "^14.1.0",
-    "browserify-shim": "^3.8.13",
-    "del": "^2.2.2",
-    "gulp": "^3.9.1",
-    "gulp-babel": "^6.1.2",
-    "gulp-connect": "^5.0.0",
-    "gulp-header": "^1.8.8",
-    "gulp-less": "^3.3.0",
-    "gulp-minify-css": "^1.2.4",
-    "gulp-rename": "^1.2.2",
-    "gulp-streamify": "^1.0.2",
-    "gulp-uglify": "^2.1.2",
-    "gulp-util": "^3.0.8",
     "jasmine": "^2.5.3",
     "jasmine-core": "^2.5.2",
     "karma": "^1.5.0",
@@ -60,11 +46,8 @@
     "karma-coverage": "^1.1.1",
     "karma-jasmine": "^1.1.0",
     "karma-phantomjs-launcher": "^1.0.4",
-    "map": "^1.0.1",
-    "path": "^0.12.7",
-    "vinyl-source-stream": "^1.1.0",
-    "watchify": "^3.9.0",
-    "yui-benchmark": "~0.3.1"
+    "rollup": "^0.57.1",
+    "rollup-plugin-uglify": "^3.0.0"
   },
   "homepage": "https://github.com/fusioncharts/svgdecanvo",
   "directories": {
