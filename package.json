@@ -2,7 +2,7 @@
   "name": "svgdecanvo",
   "version": "1.0.1",
   "description": "SVG to Canvas Converter",
-  "main": "./build/svgdecanvo.min.js",
+  "main": "./build/svgdecanvo-min.js",
   "module": "./src/svgdecanvo.js",
   "source": {
     "src": "./src",
@@ -14,19 +14,16 @@
   },
   "lib": "./lib",
   "samples": {
-    "root": "samples",
-    "dist": "dist",
-    "src": "src",
-    "port": "8080"
+    "root": "./samples"
   },
   "scripts": {
     "test": "gulp build && karma start karma.conf.js --single-run=true",
-    "watch": "gulp watch",
-    "start": "gulp start",
-    "lint": "eslint ./src/ gulpfile.js",
-    "build:sample": "gulp build:sample",
-    "build:dist": "rm -rf ./build && rollup -c",
-    "benchmark": "tests/benchmark/run.sh"
+    "lint": "eslint ./",
+    "build:prod": "rollup -c --configProduction",
+    "build:prod:minify": "rollup -c --configProduction --configMinify",
+    "build": "rm -rf ./build && npm run build:prod && npm run build:prod:minify",
+    "watch": "rm -rf ./samples && rollup -c -w",
+    "start": "rm -rf ./samples && rollup -c -w --configDevelopment"
   },
   "repository": {
     "type": "git",
@@ -38,6 +35,12 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "eslint": "^4.19.1",
+    "eslint-config-standard": "^11.0.0",
+    "eslint-plugin-import": "^2.9.0",
+    "eslint-plugin-node": "^6.0.1",
+    "eslint-plugin-promise": "^3.7.0",
+    "eslint-plugin-standard": "^3.0.1",
     "jasmine": "^2.5.3",
     "jasmine-core": "^2.5.2",
     "karma": "^1.5.0",
@@ -47,12 +50,14 @@
     "karma-jasmine": "^1.1.0",
     "karma-phantomjs-launcher": "^1.0.4",
     "rollup": "^0.57.1",
+    "rollup-plugin-copy": "^0.2.3",
+    "rollup-plugin-livereload": "^0.6.0",
+    "rollup-plugin-serve": "^0.4.2",
     "rollup-plugin-uglify": "^3.0.0"
   },
   "homepage": "https://github.com/fusioncharts/svgdecanvo",
   "directories": {
-    "doc": "docs",
-    "test": "tests"
+    "test": "./tests"
   },
   "dependencies": {
     "eve": "0.5.3"
@@ -61,50 +66,5 @@
     "svg",
     "vml",
     "graphics-library"
-  ],
-  "jshintConfig": {
-    "bitwise": false,
-    "camelcase": true,
-    "curly": true,
-    "eqeqeq": false,
-    "es3": true,
-    "forin": false,
-    "freeze": true,
-    "immed": true,
-    "indent": 4,
-    "latedef": true,
-    "newcap": true,
-    "noarg": true,
-    "noempty": false,
-    "nonew": false,
-    "plusplus": false,
-    "quotmark": "double",
-    "undef": true,
-    "unused": true,
-    "trailing": false,
-    "asi": false,
-    "boss": true,
-    "debug": false,
-    "eqnull": true,
-    "evil": false,
-    "expr": true,
-    "funcscope": false,
-    "globalstrict": false,
-    "iterator": false,
-    "lastsemic": false,
-    "laxbreak": false,
-    "laxcomma": false,
-    "loopfunc": false,
-    "multistr": false,
-    "notypeof": false,
-    "proto": false,
-    "scripturl": false,
-    "smarttabs": false,
-    "shadow": false,
-    "sub": false,
-    "supernew": false,
-    "browser": false,
-    "devel": false,
-    "node": true
-  }
+  ]
 }
