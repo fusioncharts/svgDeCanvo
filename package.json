@@ -17,8 +17,8 @@
     "root": "./samples"
   },
   "scripts": {
-    "test": "gulp build && karma start karma.conf.js --single-run=true",
     "lint": "eslint ./",
+    "test": "karma start",
     "build:prod": "rollup -c --configProduction",
     "build:prod:minify": "rollup -c --configProduction --configMinify",
     "build": "rm -rf ./build && npm run build:prod && npm run build:prod:minify",
@@ -41,14 +41,12 @@
     "eslint-plugin-node": "^6.0.1",
     "eslint-plugin-promise": "^3.7.0",
     "eslint-plugin-standard": "^3.0.1",
-    "jasmine": "^2.5.3",
-    "jasmine-core": "^2.5.2",
-    "karma": "^1.5.0",
-    "karma-browserify": "^5.1.1",
-    "karma-chrome-launcher": "^2.0.0",
-    "karma-coverage": "^1.1.1",
-    "karma-jasmine": "^1.1.0",
+    "jasmine-core": "^3.1.0",
+    "karma": "^2.0.0",
+    "karma-chrome-launcher": "^2.2.0",
+    "karma-jasmine": "^1.1.1",
     "karma-phantomjs-launcher": "^1.0.4",
+    "karma-rollup-preprocessor": "^5.1.1",
     "rollup": "^0.57.1",
     "rollup-plugin-copy": "^0.2.3",
     "rollup-plugin-livereload": "^0.6.0",
@@ -58,9 +56,6 @@
   "homepage": "https://github.com/fusioncharts/svgdecanvo",
   "directories": {
     "test": "./tests"
-  },
-  "dependencies": {
-    "eve": "0.5.3"
   },
   "keywords": [
     "svg",

@@ -1,28 +1,33 @@
 // Karma configuration
-// Generated on Wed Mar 08 2017 15:56:23 GMT+0530 (IST)
+// Generated on Fri Mar 30 2018 18:49:00 GMT+0530 (IST)
+
 module.exports = function (config) {
   config.set({
-
     // base path that will be used to resolve all patterns (eg. files, exclude)
-    basePath: './',
+    basePath: '',
 
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-    frameworks: ['jasmine', 'browserify'],
+    frameworks: ['jasmine'],
 
     // list of files / patterns to load in the browser
-    files: [
-      'tests/unit/*-spec.js'
-    ],
+    files: ['tests/**/*-spec.js', 'src/**/*.js'],
 
-    // list of files to exclude
-    exclude: [
-    ],
+    // list of files / patterns to exclude
+    exclude: [],
 
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-      'tests/unit/*-spec.js': [ 'browserify' ]
+      'tests/unit/**/*-spec.js': ['rollup'],
+      'src/**/*.js': ['rollup']
+    },
+
+    rollupPreprocessor: {
+      output: {
+        format: 'umd',
+        name: 'SvgDeCanvo'
+      }
     },
 
     // test results reporter to use
@@ -45,8 +50,7 @@ module.exports = function (config) {
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    // browsers: ['Chrome', 'Firefox'],
-    browsers: ['PhantomJS'],
+    browsers: ['Chrome', 'PhantomJS'],
 
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits

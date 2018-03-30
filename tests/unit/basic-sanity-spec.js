@@ -1,4 +1,4 @@
-var SvgDeCanvo = require('../../lib/svgdecanvo');
+import SvgDeCanvo from '../../src/svgdecanvo';
 
 describe('window', function () {
   it('should have SvgDeCanvo exposed', function () {
@@ -12,7 +12,7 @@ describe('SvgDeCanvo', function () {
     canvasEle = document.createElement('canvas');
 
   it('must be able to convert', function () {
-    let SVG = new SvgDeCanvo(svgString, canvasEle, function (canvas) { console.log(canvas); });
+    var SVG = new SvgDeCanvo(svgString, canvasEle, function (canvas) { console.log(canvas); });
 
     expect(SVG.getContext()).toBeDefined();
   });
