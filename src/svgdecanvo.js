@@ -509,6 +509,7 @@ drawLib.drawpath = function (elem, context, svgDeCanvo, pps, callBackFn) {
     cmdDetails,
     cx = 0,
     cy = 0,
+    lastPosition = {},
     i;
 
   context.beginPath();
@@ -524,11 +525,15 @@ drawLib.drawpath = function (elem, context, svgDeCanvo, pps, callBackFn) {
         cx = Number(cmdDetails[0]);
         cy = Number(cmdDetails[1]);
         context.moveTo(cx, cy);
+        lastPosition.cx = cx;
+        lastPosition.cy = cy;
         break;
       case 'm':
         cx += Number(cmdDetails[0]);
         cy += Number(cmdDetails[1]);
         context.moveTo(cx, cy);
+        lastPosition.cx = cx;
+        lastPosition.cy = cy;
         break;
       case 'L':
         for (i = 0; cmdDetails[i]; i += 2) {
@@ -809,6 +814,8 @@ drawLib.drawpath = function (elem, context, svgDeCanvo, pps, callBackFn) {
       case 'Z':
       case 'z':
         context.closePath();
+        cx = lastPosition.cx;
+        cy = lastPosition.cy;
         break;
       default:
     }
