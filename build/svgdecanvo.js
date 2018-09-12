@@ -371,7 +371,11 @@
       ry = elem.attributes.ry ? Number(elem.attributes.ry.value) : 0,
       height = Number(elem.attributes.height.value),
       width = Number(elem.attributes.width.value),
-      bBox = [];
+      bBox = [],
+      initialLineCap = context.lineCap;
+
+    // linecap for rects would be square to make it perfect rect for high stroke width
+    context.lineCap = 'square';
 
     utilLib.bBoxFromPoint([x, x + width], [y, y + height], bBox);
     context.beginPath();
@@ -400,6 +404,8 @@
       }
     }
     context.closePath();
+    // restoring the linecap
+    context.lineCap = initialLineCap;
     if (typeof callBackFn === 'function') {
       callBackFn();
     }
