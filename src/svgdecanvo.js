@@ -138,10 +138,10 @@ SvgDeCanvo.prototype.drawOnCanvas = function (svgElem, canvasElem, x, y, width, 
   oriHeight = oriDimention.height;
   x = x || dimention.x || 0;
   y = y || dimention.y || 0;
-  width = width || dimention.width || oriWidth;
-  height = height || dimention.height || oriHeight;
-  scaleX = oriDimention.width ? width / oriWidth : 1;
-  scaleY = oriDimention.height ? height / oriHeight : 1;
+  width = width || oriWidth || dimention.width;
+  height = height || oriHeight || dimention.height;
+  scaleX = oriDimention.width ? dimention.width / width : 1;
+  scaleY = oriDimention.height ? dimention.height / height : 1;
   utilLib.startTransform(
     'translate(' + x + ',' + y + ') scale(' + scaleX + ',' + scaleY + ')',
     context
