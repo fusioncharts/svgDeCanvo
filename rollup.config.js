@@ -8,7 +8,7 @@ import { version, source, build, samples, directories } from './package.json';
 
 const BANNER = `/**
  * SvgDeCanvo ${version} - JavaScript Vector Library
- * Copyright (c) 2015-2018 FusionCharts Technologies <http://www.fusioncharts.com>
+ * Copyright (c) 2015-2018 InfoSoft Global Pvt. Ltd. <http://www.fusioncharts.com>
  * Licensed under the MIT license.
  */`;
 const { dist: BUILD_PATH, name: BUILD_FILE_NAME } = build;
