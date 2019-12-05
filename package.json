@@ -1,11 +1,12 @@
 {
   "name": "svgdecanvo",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "SVG to Canvas Converter",
-  "main": "./lib/svgdecanvo.js",
+  "main": "./build/svgdecanvo-min.js",
+  "module": "./src/svgdecanvo.js",
   "source": {
     "src": "./src",
-    "name": "./index"
+    "name": "svgdecanvo"
   },
   "build": {
     "dist": "./build",
@@ -13,115 +14,52 @@
   },
   "lib": "./lib",
   "samples": {
-    "root": "samples",
-    "dist": "dist",
-    "src": "src",
-    "port": "8080"
+    "root": "./samples"
   },
   "scripts": {
-    "test": "gulp build && karma start karma.conf.js --single-run=true",
-    "watch": "gulp watch",
-    "start": "gulp start",
-    "lint": "eslint ./src/ gulpfile.js",
-    "build:sample": "gulp build:sample",
-    "build": "gulp build",
-    "benchmark": "tests/benchmark/run.sh"
+    "lint": "eslint ./",
+    "test": "karma start",
+    "build:prod": "rollup -c --configProduction",
+    "build:prod:minify": "rollup -c --configProduction --configMinify",
+    "build": "rm -rf ./build && npm run build:prod && npm run build:prod:minify",
+    "watch": "rm -rf ./samples && rollup -c -w",
+    "start": "rm -rf ./samples && rollup -c -w --configDevelopment"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/fusioncharts/svgdecanvo.git"
   },
-  "author": "FusionCharts Technologies",
+  "author": "InfoSoft Global Pvt. Ltd.",
   "bugs": {
     "url": "https://github.com/fusioncharts/svgdecanvo/issues"
   },
   "license": "MIT",
   "devDependencies": {
-    "babel-preset-es2015": "^6.24.0",
-    "babelify": "^7.3.0",
-    "browserify": "^14.1.0",
-    "browserify-shim": "^3.8.13",
-    "del": "^2.2.2",
-    "gulp": "^3.9.1",
-    "gulp-babel": "^6.1.2",
-    "gulp-connect": "^5.0.0",
-    "gulp-header": "^1.8.8",
-    "gulp-less": "^3.3.0",
-    "gulp-minify-css": "^1.2.4",
-    "gulp-rename": "^1.2.2",
-    "gulp-streamify": "^1.0.2",
-    "gulp-uglify": "^2.1.2",
-    "gulp-util": "^3.0.8",
-    "jasmine": "^2.5.3",
-    "jasmine-core": "^2.5.2",
-    "karma": "^1.5.0",
-    "karma-browserify": "^5.1.1",
-    "karma-chrome-launcher": "^2.0.0",
-    "karma-coverage": "^1.1.1",
-    "karma-jasmine": "^1.1.0",
+    "eslint": "^4.19.1",
+    "eslint-config-standard": "^11.0.0",
+    "eslint-plugin-import": "^2.9.0",
+    "eslint-plugin-node": "^6.0.1",
+    "eslint-plugin-promise": "^3.7.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "jasmine-core": "^3.1.0",
+    "karma": "^2.0.0",
+    "karma-chrome-launcher": "^2.2.0",
+    "karma-jasmine": "^1.1.1",
     "karma-phantomjs-launcher": "^1.0.4",
-    "map": "^1.0.1",
-    "path": "^0.12.7",
-    "vinyl-source-stream": "^1.1.0",
-    "watchify": "^3.9.0",
-    "yui-benchmark": "~0.3.1"
+    "karma-rollup-preprocessor": "^5.1.1",
+    "rollup": "^0.57.1",
+    "rollup-plugin-copy": "^0.2.3",
+    "rollup-plugin-livereload": "^0.6.0",
+    "rollup-plugin-serve": "^0.4.2",
+    "rollup-plugin-uglify": "^3.0.0"
   },
   "homepage": "https://github.com/fusioncharts/svgdecanvo",
   "directories": {
-    "doc": "docs",
-    "test": "tests"
-  },
-  "dependencies": {
-    "eve": "0.5.3"
+    "test": "./tests"
   },
   "keywords": [
     "svg",
     "vml",
     "graphics-library"
-  ],
-  "jshintConfig": {
-    "bitwise": false,
-    "camelcase": true,
-    "curly": true,
-    "eqeqeq": false,
-    "es3": true,
-    "forin": false,
-    "freeze": true,
-    "immed": true,
-    "indent": 4,
-    "latedef": true,
-    "newcap": true,
-    "noarg": true,
-    "noempty": false,
-    "nonew": false,
-    "plusplus": false,
-    "quotmark": "double",
-    "undef": true,
-    "unused": true,
-    "trailing": false,
-    "asi": false,
-    "boss": true,
-    "debug": false,
-    "eqnull": true,
-    "evil": false,
-    "expr": true,
-    "funcscope": false,
-    "globalstrict": false,
-    "iterator": false,
-    "lastsemic": false,
-    "laxbreak": false,
-    "laxcomma": false,
-    "loopfunc": false,
-    "multistr": false,
-    "notypeof": false,
-    "proto": false,
-    "scripturl": false,
-    "smarttabs": false,
-    "shadow": false,
-    "sub": false,
-    "supernew": false,
-    "browser": false,
-    "devel": false,
-    "node": true
-  }
+  ]
 }
