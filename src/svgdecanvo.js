@@ -354,8 +354,8 @@ drawLib.drawcircle = function (elem, context, svgDeCanvo, pps, callBackFn) {
 };
 
 drawLib.drawrect = function (elem, context, svgDeCanvo, pps, callBackFn) {
-  var x = Number(elem.attributes.x.value),
-    y = Number(elem.attributes.y.value),
+  var x = Number((elem.attributes.x && elem.attributes.x.value) || 0),
+    y = Number((elem.attributes.y && elem.attributes.y.value) || 0),
     rx = elem.attributes.rx ? Number(elem.attributes.rx.value) : 0,
     ry = elem.attributes.ry ? Number(elem.attributes.ry.value) : 0,
     height = Number(elem.attributes.height.value),
