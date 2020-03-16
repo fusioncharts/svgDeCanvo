@@ -3,7 +3,6 @@
  * Copyright (c) 2015-2018 FusionCharts, Inc. <http://www.fusioncharts.com>
  * Licensed under the MIT license.
  */
-(function(l, i, v, e) { v = l.createElement(i); v.async = 1; v.src = '//' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1'; e = l.getElementsByTagName(i)[0]; e.parentNode.insertBefore(v, e)})(document, 'script');
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
   typeof define === 'function' && define.amd ? define(factory) :
@@ -366,8 +365,8 @@
   };
 
   drawLib.drawrect = function (elem, context, svgDeCanvo, pps, callBackFn) {
-    var x = Number(elem.attributes.x.value),
-      y = Number(elem.attributes.y.value),
+    var x = Number((elem.attributes.x && elem.attributes.x.value) || 0),
+      y = Number((elem.attributes.y && elem.attributes.y.value) || 0),
       rx = elem.attributes.rx ? Number(elem.attributes.rx.value) : 0,
       ry = elem.attributes.ry ? Number(elem.attributes.ry.value) : 0,
       height = Number(elem.attributes.height.value),

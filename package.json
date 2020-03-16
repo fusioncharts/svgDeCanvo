@@ -1,6 +1,6 @@
 {
   "name": "svgdecanvo",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "SVG to Canvas Converter",
   "main": "./build/svgdecanvo-min.js",
   "module": "./src/svgdecanvo.js",
@@ -29,7 +29,7 @@
     "type": "git",
     "url": "https://github.com/fusioncharts/svgdecanvo.git"
   },
-  "author": "InfoSoft Global Pvt. Ltd.",
+  "author": "FusionCharts, Inc.",
   "bugs": {
     "url": "https://github.com/fusioncharts/svgdecanvo/issues"
   },
