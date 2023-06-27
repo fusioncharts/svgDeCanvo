@@ -256,7 +256,7 @@ drawLib.drawtext = function (elem, context, svgDeCanvo, pps, callBackFn) {
 
 drawLib.drawtspan = function (elem, context, svgDeCanvo, pps, callBackFn) {
   // innerHTML for chrome and firefox textContent for safari and IE
-  var text = elem.innerHTML || elem.textContent,
+  var text = elem.textContent || elem.innerHTML,
     x = elem.attributes.x ? elem.attributes.x.value : 0,
     y = elem.attributes.y ? elem.attributes.y.value : 0,
     dx = elem.attributes.dx ? elem.attributes.dx.value : 0,
